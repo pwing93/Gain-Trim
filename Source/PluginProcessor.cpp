@@ -12,7 +12,7 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-GainTrimPlugInAudioProcessor::GainTrimPlugInAudioProcessor()
+StereoAutopannerAudioProcessor::StereoAutopannerAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
      : AudioProcessor (BusesProperties()
                      #if ! JucePlugin_IsMidiEffect
@@ -24,20 +24,21 @@ GainTrimPlugInAudioProcessor::GainTrimPlugInAudioProcessor()
                        )
 #endif
 {
-    addParameter(gain = new AudioParameterFloat("gain", "Gain", 0.0, 1.0, 0.0));
+    //addParameter(gain = new AudioParameterFloat("gain", "Unused", 0.0, 1.0, 0.5));
+    addParameter(mS = new AudioParameterFloat ("mS", "Time - mS", 10, 5000, 2500));
 }
 
-GainTrimPlugInAudioProcessor::~GainTrimPlugInAudioProcessor()
+StereoAutopannerAudioProcessor::~StereoAutopannerAudioProcessor()
 {
 }
 
 //==============================================================================
-const String GainTrimPlugInAudioProcessor::getName() const
+const String StereoAutopannerAudioProcessor::getName() const
 {
     return JucePlugin_Name;
 }
 
-bool GainTrimPlugInAudioProcessor::acceptsMidi() const
+bool StereoAutopannerAudioProcessor::acceptsMidi() const
 {
    #if JucePlugin_WantsMidiInput
     return true;
@@ -46,7 +47,7 @@ bool GainTrimPlugInAudioProcessor::acceptsMidi() const
    #endif
 }
 
-bool GainTrimPlugInAudioProcessor::producesMidi() const
+bool StereoAutopannerAudioProcessor::producesMidi() const
 {
    #if JucePlugin_ProducesMidiOutput
     return true;
@@ -55,7 +56,7 @@ bool GainTrimPlugInAudioProcessor::producesMidi() const
    #endif
 }
 
-bool GainTrimPlugInAudioProcessor::isMidiEffect() const
+bool StereoAutopannerAudioProcessor::isMidiEffect() const
 {
    #if JucePlugin_IsMidiEffect
     return true;
@@ -64,50 +65,50 @@ bool GainTrimPlugInAudioProcessor::isMidiEffect() const
    #endif
 }
 
-double GainTrimPlugInAudioProcessor::getTailLengthSeconds() const
+double StereoAutopannerAudioProcessor::getTailLengthSeconds() const
 {
     return 0.0;
 }
 
-int GainTrimPlugInAudioProcessor::getNumPrograms()
+int StereoAutopannerAudioProcessor::getNumPrograms()
 {
     return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
                 // so this should be at least 1, even if you're not really implementing programs.
 }
 
-int GainTrimPlugInAudioProcessor::getCurrentProgram()
+int StereoAutopannerAudioProcessor::getCurrentProgram()
 {
     return 0;
 }
 
-void GainTrimPlugInAudioProcessor::setCurrentProgram (int index)
+void StereoAutopannerAudioProcessor::setCurrentProgram (int index)
 {
 }
 
-const String GainTrimPlugInAudioProcessor::getProgramName (int index)
+const String StereoAutopannerAudioProcessor::getProgramName (int index)
 {
     return {};
 }
 
-void GainTrimPlugInAudioProcessor::changeProgramName (int index, const String& newName)
+void StereoAutopannerAudioProcessor::changeProgramName (int index, const String& newName)
 {
 }
 
 //==============================================================================
-void GainTrimPlugInAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+void StereoAutopannerAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
 }
 
-void GainTrimPlugInAudioProcessor::releaseResources()
+void StereoAutopannerAudioProcessor::releaseResources()
 {
     // When playback stops, you can use this as an opportunity to free up any
     // spare memory, etc.
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
-bool GainTrimPlugInAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
+bool StereoAutopannerAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
   #if JucePlugin_IsMidiEffect
     ignoreUnused (layouts);
@@ -130,47 +131,62 @@ bool GainTrimPlugInAudioProcessor::isBusesLayoutSupported (const BusesLayout& la
 }
 #endif
 
-void GainTrimPlugInAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
+void StereoAutopannerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
     auto* channeldataL = buffer.getWritePointer(0);
     auto* channeldataR = buffer.getWritePointer(1);
     
-    float gSlider = gain->get();
+    float mSeconds = mS->get() / 1000;
+    
+    int numberSamples = getSampleRate() * mSeconds;
+    const float radsPerSample = (2 * double_Pi) / numberSamples;
+    
+    //float gSlider = gain->get();
     
     for (int i = 0; i < buffer.getNumSamples(); i++)
     {
         auto inputL = channeldataL[i];
         auto inputR = channeldataR[i];
         
-        inputL = inputL * gSlider;
-        inputR = inputR * gSlider;
+        float sinValue = std::sin(nextRad) + 1;
+        sinValue = (sinValue * double_Pi) / 4;
+        
+        inputL = inputL * cos(sinValue);
+        inputR = inputR * sin(sinValue);
         
         channeldataL[i] = inputL;
         channeldataR[i] = inputR;
+        
+        nextRad += radsPerSample;
+    }
+    
+    if (nextRad > numberSamples)
+    {
+        nextRad = 0;
     }
 }
 
 //==============================================================================
-bool GainTrimPlugInAudioProcessor::hasEditor() const
+bool StereoAutopannerAudioProcessor::hasEditor() const
 {
     return true; // (change this to false if you choose to not supply an editor)
 }
 
-AudioProcessorEditor* GainTrimPlugInAudioProcessor::createEditor()
+AudioProcessorEditor* StereoAutopannerAudioProcessor::createEditor()
 {
-    //return new GainTrimPlugInAudioProcessorEditor (*this);
+    //return new StereoAutopannerAudioProcessorEditor (*this);
     return new GenericAudioProcessorEditor(this);
 }
 
 //==============================================================================
-void GainTrimPlugInAudioProcessor::getStateInformation (MemoryBlock& destData)
+void StereoAutopannerAudioProcessor::getStateInformation (MemoryBlock& destData)
 {
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
 }
 
-void GainTrimPlugInAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
+void StereoAutopannerAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
@@ -180,5 +196,5 @@ void GainTrimPlugInAudioProcessor::setStateInformation (const void* data, int si
 // This creates new instances of the plugin..
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
-    return new GainTrimPlugInAudioProcessor();
+    return new StereoAutopannerAudioProcessor();
 }

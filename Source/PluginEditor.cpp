@@ -12,7 +12,7 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-GainTrimPlugInAudioProcessorEditor::GainTrimPlugInAudioProcessorEditor (GainTrimPlugInAudioProcessor& p)
+StereoAutopannerAudioProcessorEditor::StereoAutopannerAudioProcessorEditor (StereoAutopannerAudioProcessor& p)
     : AudioProcessorEditor (&p), processor (p)
 {
     // Make sure that before the constructor has finished, you've set the
@@ -20,12 +20,12 @@ GainTrimPlugInAudioProcessorEditor::GainTrimPlugInAudioProcessorEditor (GainTrim
     setSize (400, 300);
 }
 
-GainTrimPlugInAudioProcessorEditor::~GainTrimPlugInAudioProcessorEditor()
+StereoAutopannerAudioProcessorEditor::~StereoAutopannerAudioProcessorEditor()
 {
 }
 
 //==============================================================================
-void GainTrimPlugInAudioProcessorEditor::paint (Graphics& g)
+void StereoAutopannerAudioProcessorEditor::paint (Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
@@ -35,7 +35,7 @@ void GainTrimPlugInAudioProcessorEditor::paint (Graphics& g)
     g.drawFittedText ("Hello World!", getLocalBounds(), Justification::centred, 1);
 }
 
-void GainTrimPlugInAudioProcessorEditor::resized()
+void StereoAutopannerAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..

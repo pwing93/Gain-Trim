@@ -16,11 +16,11 @@
 //==============================================================================
 /**
 */
-class GainTrimPlugInAudioProcessorEditor  : public AudioProcessorEditor
+class StereoAutopannerAudioProcessorEditor  : public AudioProcessorEditor
 {
 public:
-    GainTrimPlugInAudioProcessorEditor (GainTrimPlugInAudioProcessor&);
-    ~GainTrimPlugInAudioProcessorEditor();
+    StereoAutopannerAudioProcessorEditor (StereoAutopannerAudioProcessor&);
+    ~StereoAutopannerAudioProcessorEditor();
 
     //==============================================================================
     void paint (Graphics&) override;
@@ -29,7 +29,7 @@ public:
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
-    GainTrimPlugInAudioProcessor& processor;
+    StereoAutopannerAudioProcessor& processor;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GainTrimPlugInAudioProcessorEditor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StereoAutopannerAudioProcessorEditor)
 };

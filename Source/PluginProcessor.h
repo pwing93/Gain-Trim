@@ -15,12 +15,12 @@
 //==============================================================================
 /**
 */
-class GainTrimPlugInAudioProcessor  : public AudioProcessor
+class StereoAutopannerAudioProcessor  : public AudioProcessor
 {
 public:
     //==============================================================================
-    GainTrimPlugInAudioProcessor();
-    ~GainTrimPlugInAudioProcessor();
+    StereoAutopannerAudioProcessor();
+    ~StereoAutopannerAudioProcessor();
 
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
@@ -56,7 +56,9 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
 private:
-    AudioParameterFloat* gain;
+    //AudioParameterFloat* gain;
+    AudioParameterFloat* mS;
+    float nextRad = 0;
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GainTrimPlugInAudioProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StereoAutopannerAudioProcessor)
 };
